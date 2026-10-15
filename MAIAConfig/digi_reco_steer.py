@@ -32,7 +32,7 @@ args = get_reco_args()
 algList = merge_alg_lists(makeDigiAlgList(args), makeRecoAlgList(args))
 
 # Read the simulation output, write the reconstruction output
-build_application(
+app = build_application(
     args, algList,
     input_files = ["sim_output.edm4hep.root"],
     output_file = "digireco_output.edm4hep.root",
@@ -45,3 +45,15 @@ build_application(
 if (args.doOverlayIP or args.doOverlayFull) and not args.keepEverything:
     drop_tracker_hits()
     drop_calorimeter_hits()
+
+# Per-algorithm CPU monitoring via the Gaudi Auditor Service. Most meaningful
+# single-threaded. Global message level raised to INFO not to be suppressed
+# by the WARNING default.
+from GaudiKernel.Constants import INFO
+from Configurables import AuditorSvc, ChronoStatSvc
+app.OutputLevel = INFO
+app.AuditAlgorithms = True
+app.ExtSvc += [
+    AuditorSvc("AuditorSvc", Auditors = ["ChronoAuditor"]),
+    ChronoStatSvc(),
+]
