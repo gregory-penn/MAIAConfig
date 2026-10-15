@@ -120,6 +120,8 @@
             <ClusterSeedStrategy>2</ClusterSeedStrategy>    <!-- default value -->
             <ShouldUseTrackSeed>true</ShouldUseTrackSeed> <!-- default value -->
             <ShouldExcludeBIBHits>true</ShouldExcludeBIBHits>
+            <!-- Delete clusters with electromagnetic energy below this value (GeV) at the end of this ConeClustering only. 0 disables. -->
+            <MinClusterEnergy>0.5</MinClusterEnergy>
         </algorithm>
         <algorithm type = "TopologicalAssociationParent" description = "ClusterAssociation">
             <associationAlgorithms>
