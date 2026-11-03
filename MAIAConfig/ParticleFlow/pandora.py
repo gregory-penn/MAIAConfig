@@ -2,6 +2,7 @@ from GaudiKernel.Constants import INFO, WARNING, DEBUG
 from Configurables import DDPandoraPFANewAlgorithm, FastJetAlg
 
 from Common.pandora_settings import resolve_pandora_settings
+from Common.overlay_utils import overlay_mc_particles
 
 def pandoraPFA_cfg(the_args=None):
     """
@@ -100,7 +101,8 @@ def pandoraPFA_cfg(the_args=None):
         V0VertexCollections = [],#"V0Vertices"],
         TrackCollections = ["SiTracks"],
         RelTrackCollections = [],#"MergedTrackerHitsRelations"],
-        MCParticleCollections = ["MCParticles"],
+        # With overlay, the hit contributions point to the overlay copy of the signal particles (see overlay_utils)
+        MCParticleCollections = overlay_mc_particles(the_args),
         MuonCaloHitCollections = ["MuonBarrelHits", "MuonEndcapHits"],
         # ECAL/HCAL hits are coned and BIB-selected upstream (see
         # CaloDigi/calo_coning.py), so Pandora reads the "...Sel" collections.

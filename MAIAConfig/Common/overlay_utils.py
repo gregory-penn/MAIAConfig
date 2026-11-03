@@ -23,3 +23,25 @@ def overlay_input(base_name, args):
     if getattr(args, "doOverlayFull", False):
         return ["Overlay" + base_name]
     return [base_name]
+
+
+def overlay_mc_particles(args):
+    """
+    Return the MCParticle collection that the calorimeter hit contributions point
+    to after the overlay chain, following the same precedence as overlay_input:
+
+      * if --doOverlayIP   -> "MCParticlesIP"  (OutputMCParticles of overlay_IP.py)
+      * elif --doOverlayFull -> "NewMCParticles" (OutputMCParticles default of the
+                                                  BIB overlay; with MergeMCParticles
+                                                  False it holds the signal particles)
+      * else               -> "MCParticles"
+
+    The overlay copies the signal hits into new collections whose contributions
+    point to its copy of the signal particles, so an algorithm that follows the
+    contributions (e.g. Pandora's truth links) must read this collection.
+    """
+    if getattr(args, "doOverlayIP", False):
+        return ["MCParticlesIP"]
+    if getattr(args, "doOverlayFull", False):
+        return ["NewMCParticles"]
+    return ["MCParticles"]
