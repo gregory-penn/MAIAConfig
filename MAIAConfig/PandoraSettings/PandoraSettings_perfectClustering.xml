@@ -1,0 +1,105 @@
+<!-- Pandora settings xml file: truth-assisted (cheated) clustering.
+
+     Identical to PandoraSettingsDefault.xml up to and including EventPreparation. All cluster formation,
+     merging and splitting is replaced by PerfectClustering, which makes one cluster per MC PFO target from the
+     calorimeter hit to MCParticle links. Track-cluster association and PFO creation are as in the default.
+     Requires RelCaloHitCollections to be set for the Pandora algorithm. Muon yoke hits are not clustered. -->
+
+<pandora>
+    <!-- GLOBAL SETTINGS -->
+    <IsMonitoringEnabled>true</IsMonitoringEnabled>
+    <ShouldDisplayAlgorithmInfo>false</ShouldDisplayAlgorithmInfo>
+    <ShouldCollapseMCParticlesToPfoTarget>true</ShouldCollapseMCParticlesToPfoTarget>
+
+    <!-- PLUGIN REGISTRATION -->
+    <HadronicEnergyCorrectionPlugins>SoftwareCompensation</HadronicEnergyCorrectionPlugins>
+    <EmShowerPlugin>LCEmShowerId</EmShowerPlugin>
+    <PhotonPlugin>LCPhotonId</PhotonPlugin>
+    <ElectronPlugin>LCElectronId</ElectronPlugin>
+    <MuonPlugin>LCMuonId</MuonPlugin>
+
+    <!-- PLUGIN SETTINGS -->
+    <LCMuonId>
+        <MinMuonTrackSegmentHitsCut>5</MinMuonTrackSegmentHitsCut>
+        <MuonRmsCut>15.625</MuonRmsCut>
+    </LCMuonId>
+
+    <!-- ALGORITHM SETTINGS -->
+
+    <!-- Set calo hit properties, then select tracks and hits to use for clustering.
+         BIB cuts: 3-gaussian (two-sided core + wide) fits to the per-pseudolayer
+         neighbourhood EM energy of 100% BIB ECAL hits, fitted separately for barrel
+         and endcap, at the x2 working point. Converted to the EM energy density this
+         algorithm computes via cut[L] = 2 * arc[L] / (pi * 25^2 * nSampledLayers(L)).
+         Vectors span the full ECAL depth (layers 0-50) so the tiny tail cuts still
+         flag zero-neighbour hits; the trailing 0 leaves HCAL and yoke untouched.
+         BIBCutDistance=25 matches the fine-granularity neighbourhood of the fit. -->
+    <algorithm type = "CaloHitPreparation">
+        <BIBCutDistance>25</BIBCutDistance>
+        <!-- Per-pseudolayer BIB energy density cuts, one file per subdetector and region;
+             a subdetector/region without a file is disabled. Current files: the x2 working
+             point of the barrel/endcap 3-gaussian fits (see the files for the derivation).
+             HCAL flagging is available but disabled: add BIBCutsFileHCalBarrel /
+             BIBCutsFileHCalEndcap to enable it. -->
+        <BIBCutsFileECalBarrel>PandoraSettings/BIBCutsECalBarrel.txt</BIBCutsFileECalBarrel>
+        <BIBCutsFileECalEndcap>PandoraSettings/BIBCutsECalEndcap.txt</BIBCutsFileECalEndcap>
+        <!-- Optional timing window (disabled): when enabled, hits with time outside
+             [BIBTimingWindowLow, BIBTimingWindowHigh] ns are also flagged as possible BIB.
+        <BIBTimingCutEnabled>true</BIBTimingCutEnabled>
+        <BIBTimingWindowLow>-0.5</BIBTimingWindowLow>
+        <BIBTimingWindowHigh>15.</BIBTimingWindowHigh>
+        -->
+    </algorithm>
+    <algorithm type = "EventPreparation">
+        <OutputTrackListName>Tracks</OutputTrackListName>
+        <OutputCaloHitListName>CaloHits</OutputCaloHitListName>
+        <OutputMuonCaloHitListName>MuonYokeHits</OutputMuonCaloHitListName>
+        <ReplacementTrackListName>Tracks</ReplacementTrackListName>
+        <ReplacementCaloHitListName>CaloHits</ReplacementCaloHitListName>
+    </algorithm>
+
+    <!-- One cluster per MC PFO target. Hits shared by several PFO targets are split in proportion to their true
+         energy deposits; shares below MinWeightFraction (default 0.01) are dropped. -->
+    <algorithm type = "ClusteringParent">
+        <algorithm type = "PerfectClustering" description = "ClusterFormation">
+            <SimpleMCParticleCollection>false</SimpleMCParticleCollection>
+            <ShouldUseIsolatedHits>true</ShouldUseIsolatedHits>
+        </algorithm>
+        <ClusterListName>PrimaryClusters</ClusterListName>
+        <ReplaceCurrentClusterList>true</ReplaceCurrentClusterList>
+    </algorithm>
+
+    <!-- Prepare particle flow objects. These associate tracks with clusters but do not change cluster contents. -->
+    <algorithm type = "TrackPreparation">
+        <CandidateListNames>Input</CandidateListNames>
+        <MergedCandidateListName>PfoCandidates</MergedCandidateListName>
+        <PfoTrackListName>PfoCreation</PfoTrackListName>
+        <trackClusterAssociationAlgorithms>
+            <algorithm type = "TrackClusterAssociation"/>
+            <algorithm type = "LoopingTrackAssociation"/>
+            <algorithm type = "TrackRecovery"/>
+            <algorithm type = "TrackRecoveryHelix"/>
+            <algorithm type = "TrackRecoveryInteractions"/>
+        </trackClusterAssociationAlgorithms>
+    </algorithm>
+
+    <algorithm type = "ClusterPreparation">
+        <CandidateListNames>PrimaryClusters</CandidateListNames>
+        <MergedCandidateListName>PfoCreation</MergedCandidateListName>
+    </algorithm>
+
+    <!-- Create particle flow objects -->
+    <algorithm type = "PfoCreation">
+        <OutputPfoListName>PrimaryPfos</OutputPfoListName>
+    </algorithm>
+
+    <algorithm type = "PfoPreparation">
+        <CandidateListNames>PrimaryPfos</CandidateListNames>
+        <MergedCandidateListName>OutputPfos</MergedCandidateListName>
+    </algorithm>
+
+    <!-- Particle flow object modification algorithms -->
+    <algorithm type = "FinalParticleId"/>
+    <algorithm type = "V0PfoCreation"/>
+    <algorithm type = "DumpPfosMonitoring"/>
+</pandora>
