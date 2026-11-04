@@ -40,6 +40,14 @@ def makeRecoAlgList(the_args):
         algList.append(deduper_cfg("GNNDirectDeduper", "GNNTrackCandidates", "GNNDirectDedupedTracks"))
         algList.append(track_filter_cfg("GNNDirectFilterer", "GNNDirectDedupedTracks", "GNNDirectSiTracks"))
 
+    # Truth tracking. It runs alongside the standard CKF chain, writing into its
+    # own collections (TruthTracks / TruthTrackRelations for the CKF fit,
+    # TruthTracksKF / TruthTrackRelationsKF for the KF fit, see
+    # --truthTrackingFit). It uses the ActsGeoSvc configured above.
+    if the_args.doTruthTracking:
+        from Tracking.truth_tracking import TruthTracker_cfg
+        algList += TruthTracker_cfg(the_args)
+
     if the_args.doCLUE:
         from Clustering.clue import CLUEWrapper_cfg
         algList.append(CLUEWrapper_cfg(the_args))
