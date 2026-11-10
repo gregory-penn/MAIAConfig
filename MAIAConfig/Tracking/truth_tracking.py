@@ -50,8 +50,8 @@ def _truth_track_finder(name, fit_mode, track_collection, relation_collection):
 def TruthTracker_cfg(args):
     """
     The TruthTrackFinder instances for --truthTrackingFit:
-      * "CKF"  (default): TruthTrackFinder   -> TruthTracks,   TruthTrackRelations
-      * "KF":             TruthTrackFinderKF -> TruthTracksKF, TruthTrackRelationsKF
+      * "KF"   (default): TruthTrackFinderKF -> TruthTracksKF, TruthTrackRelationsKF
+      * "CKF":            TruthTrackFinder   -> TruthTracks,   TruthTrackRelations
       * "both":           both of the above, in the same job
     Returns a list of algorithms.
     """

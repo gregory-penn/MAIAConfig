@@ -94,8 +94,8 @@ def get_reco_args():
     parser.add_argument(
         "--doTruthTracking",
         help="Additionally run the truth track finder (TruthTracking repository): "
-             "hits grouped by MCParticle, fitted with k4ActsTracking's KFRunner, "
-             "into TruthTracks / TruthTrackRelations. The standard CKF chain is "
+             "hits grouped by MCParticle and fitted (see --truthTrackingFit; default "
+             "KF, into TruthTracksKF / TruthTrackRelationsKF). The standard CKF chain is "
              "unaffected and keeps writing SiTracks. Needs the TruthTracking "
              "install/lib and install/python on LD_LIBRARY_PATH and PYTHONPATH",
         action="store_true",
@@ -105,13 +105,13 @@ def get_reco_args():
     parser.add_argument(
         "--truthTrackingFit",
         help="How --doTruthTracking turns each particle's hits into a track: "
-             "'CKF' (Combinatorial Kalman Filter over the particle's hits, with "
-             "the standard CKF's chi2 hit rejection; into TruthTracks), 'KF' "
-             "(Kalman fit of every hit; into TruthTracksKF), or 'both' (both "
+             "'KF' (default; Kalman fit of every hit; into TruthTracksKF), 'CKF' "
+             "(Combinatorial Kalman Filter over the particle's hits, with the "
+             "standard CKF's chi2 hit rejection; into TruthTracks), or 'both' (both "
              "instances in the same job, for comparison)",
         type=str,
         choices=["CKF", "KF", "both"],
-        default="CKF",
+        default="KF",
     )
 
     # CLUE args
