@@ -4,6 +4,27 @@ from Configurables import DDPandoraPFANewAlgorithm, FastJetAlg
 from Common.pandora_settings import resolve_pandora_settings
 from Common.overlay_utils import overlay_mc_particles
 
+def pandora_track_inputs(the_args):
+    """
+    The track collection and the track -> MCParticle link collection given to
+    Pandora (TrackCollections, RelTrackCollections):
+      * default:                SiTracks, no links
+      * --pandoraTruthTracks:   the truth tracks of --doTruthTracking and their
+                                links (TruthTracking writes one link per track,
+                                weight 1): the KF instance for --truthTrackingFit
+                                KF or both, the CKF instance for CKF
+    """
+    if not getattr(the_args, "pandoraTruthTracks", False):
+        return ["SiTracks"], []
+    if not getattr(the_args, "doTruthTracking", False):
+        raise ValueError("--pandoraTruthTracks needs --doTruthTracking (the truth tracks are made by TruthTrackFinder)")
+    if the_args.truthTrackingFit in ("KF", "both"):
+        tracks, links = "TruthTracksKF", "TruthTrackRelationsKF"
+    else:
+        tracks, links = "TruthTracks", "TruthTrackRelations"
+    print(f"[pandora] --pandoraTruthTracks: TrackCollections = [{tracks}], RelTrackCollections = [{links}]")
+    return [tracks], [links]
+
 def pandoraPFA_cfg(the_args=None):
     """
     Create a new DDPandoraPFANewAlgorithm instance for Pandora PFA.
@@ -13,6 +34,7 @@ def pandoraPFA_cfg(the_args=None):
     have to run from a directory containing a copy of PandoraSettings/.
     """
     settings = getattr(the_args, "pandoraSettings", None) or "PandoraSettingsDefault.xml"
+    track_collections, track_link_collections = pandora_track_inputs(the_args)
     return DDPandoraPFANewAlgorithm(
         "PandoraPFANew",
         CreateGaps = False,
@@ -99,8 +121,9 @@ def pandoraPFA_cfg(the_args=None):
         SplitVertexCollections = [],#"SplitVertices"],
         KinkVertexCollections = [],#"KinkVertices"],
         V0VertexCollections = [],#"V0Vertices"],
-        TrackCollections = ["SiTracks"],
-        RelTrackCollections = [],#"MergedTrackerHitsRelations"],
+        # SiTracks by default; the truth tracks and their MCParticle links with --pandoraTruthTracks
+        TrackCollections = track_collections,
+        RelTrackCollections = track_link_collections,
         # With overlay, the hit contributions point to the overlay copy of the signal particles (see overlay_utils)
         MCParticleCollections = overlay_mc_particles(the_args),
         MuonCaloHitCollections = ["MuonBarrelHits", "MuonEndcapHits"],

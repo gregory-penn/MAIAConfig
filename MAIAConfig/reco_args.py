@@ -114,6 +114,18 @@ def get_reco_args():
         default="KF",
     )
 
+    parser.add_argument(
+        "--pandoraTruthTracks",
+        help="Give Pandora the truth tracks and their track -> MCParticle links "
+             "instead of SiTracks: TruthTracksKF / TruthTrackRelationsKF when "
+             "--truthTrackingFit is KF or both, TruthTracks / TruthTrackRelations "
+             "when it is CKF. Requires --doTruthTracking. The links are only read "
+             "by Pandora's cheating and monitoring algorithms (e.g. with "
+             "--pandoraSettings PandoraSettings_perfectPFA.xml)",
+        action="store_true",
+        default=False,
+    )
+
     # CLUE args
     parser.add_argument(
         "--doCLUE",
