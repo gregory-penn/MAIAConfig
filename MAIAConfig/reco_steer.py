@@ -22,9 +22,9 @@ app = build_application(
     histo_file = "reco_histograms.root",
 )
 
-# With BIB, drop every (Sim)TrackerHit and (Sim)CalorimeterHit collection
-# from the reco output. --keepEverything writes the full event.
-if (args.doOverlayIP or args.doOverlayFull) and not args.keepEverything:
+# With BIB, or with --dropHits, drop every (Sim)TrackerHit and (Sim)CalorimeterHit
+# collection from the reco output. --keepEverything writes the full event.
+if (args.doOverlayIP or args.doOverlayFull or args.dropHits) and not args.keepEverything:
     drop_tracker_hits()
     drop_calorimeter_hits()
 

@@ -82,6 +82,16 @@ def get_reco_args():
     )
 
     parser.add_argument(
+        "--dropHits",
+        help="Drop the tracker and calorimeter hit collections (simulated and "
+             "digitised hits, calorimeter contributions and hit links) from the "
+             "reconstruction output even without an overlay. --keepEverything "
+             "takes precedence",
+        action="store_true",
+        default=False,
+    )
+
+    parser.add_argument(
         "--pandoraSettings",
         help="Pandora settings XML. A bare file name is looked up in the "
              "PandoraSettings directory shipped with MAIAConfig (override it "

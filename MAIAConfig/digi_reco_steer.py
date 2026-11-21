@@ -42,7 +42,8 @@ app = build_application(
 # Same output slimming as reco_steer.py: with background overlaid the hit
 # collections dominate the output file size, so drop every (Sim)TrackerHit and
 # (Sim)CalorimeterHit collection unless --keepEverything asks for the full event.
-if (args.doOverlayIP or args.doOverlayFull) and not args.keepEverything:
+# --dropHits applies the same slimming without an overlay.
+if (args.doOverlayIP or args.doOverlayFull or args.dropHits) and not args.keepEverything:
     drop_tracker_hits()
     drop_calorimeter_hits()
 
