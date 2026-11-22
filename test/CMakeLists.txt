@@ -40,6 +40,14 @@ add_test(NAME pandora_settings_path
                  python3 ${CMAKE_CURRENT_LIST_DIR}/check_pandora_settings.py
 )
 
+# With --pandoraCalibration on, the theta-energy plugins must be added to the
+# settings XML, and the default settings must stay free of them.
+add_test(NAME pandora_theta_energy_settings
+         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+         COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${MAIAConfig_DIR}
+                 python3 ${CMAKE_CURRENT_LIST_DIR}/check_pandora_theta_energy_settings.py
+)
+
 add_test(NAME reco_help
          WORKING_DIRECTORY ${MAIAConfig_DIR}
          COMMAND k4run --help reco_steer.py
